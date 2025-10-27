@@ -4,6 +4,7 @@ A simple Go application to send messages to Google Chat via webhooks.
 
 ## Features
 
+- **Web UI** - Interactive web interface for sending custom messages
 - Send simple text messages to Google Chat
 - Send rich card messages with headers, key-value pairs, and formatted text
 - Easy configuration via environment variables
@@ -42,24 +43,39 @@ GOOGLE_CHAT_WEBHOOK_URL=https://chat.googleapis.com/v1/spaces/YOUR_SPACE_ID/mess
 
 ## Usage
 
-### Running with Go (Local Development)
+### Web UI (Recommended)
 
-The application automatically loads the `.env` file, so just run:
+The bot now includes a web interface for easily sending custom messages.
+
+**Start the web server:**
 ```bash
 go run main.go
 ```
 
-Or build and run the binary:
+Or with Docker:
 ```bash
-go build -o google-chat-bot
-./google-chat-bot
+docker run -p 8080:8080 --env-file .env google-chat-bot
 ```
 
-You can also export the environment variable directly:
+**Access the UI:**
+Open your browser and navigate to `http://localhost:8080`
+
+**Features:**
+- Send simple text messages or rich card messages
+- Customize card titles and subtitles
+- Real-time success/error feedback
+- Clean, modern interface
+
+**Custom Port:**
+Set the `PORT` environment variable to use a different port:
 ```bash
-export GOOGLE_CHAT_WEBHOOK_URL="your_webhook_url_here"
+export PORT=3000
 go run main.go
 ```
+
+### Programmatic Usage (API)
+
+You can also use the message-sending functions programmatically in your own Go code. See the [Code Examples](#code-examples) section below for details.
 
 ### Running with Docker
 
@@ -72,13 +88,15 @@ docker build -t google-chat-bot .
 #### Run the container
 
 ```bash
-docker run --env-file .env google-chat-bot
+docker run -p 8080:8080 --env-file .env google-chat-bot
 ```
 
 Or pass the webhook URL directly:
 ```bash
-docker run -e GOOGLE_CHAT_WEBHOOK_URL="your_webhook_url_here" google-chat-bot
+docker run -p 8080:8080 -e GOOGLE_CHAT_WEBHOOK_URL="your_webhook_url_here" google-chat-bot
 ```
+
+Then access the web UI at `http://localhost:8080`
 
 #### Pull from GitHub Container Registry
 
@@ -89,7 +107,7 @@ Once the GitHub Actions workflow runs, you can pull the pre-built image:
 docker pull ghcr.io/YOUR_GITHUB_USERNAME/google-chat-bot:latest
 
 # Run it
-docker run -e GOOGLE_CHAT_WEBHOOK_URL="your_webhook_url_here" ghcr.io/YOUR_GITHUB_USERNAME/google-chat-bot:latest
+docker run -p 8080:8080 -e GOOGLE_CHAT_WEBHOOK_URL="your_webhook_url_here" ghcr.io/YOUR_GITHUB_USERNAME/google-chat-bot:latest
 ```
 
 Replace `YOUR_GITHUB_USERNAME` with your actual GitHub username or organization name.
