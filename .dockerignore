@@ -1,0 +1,26 @@
+# Git
+.git
+.gitignore
+
+# Environment files
+.env
+
+# Documentation
+README.md
+LICENSE
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Build artifacts
+google-chat-bot
+*.exe
+*.test
+*.out
+
+# CI/CD
+.github
