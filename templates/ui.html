@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Standup Bot - Management Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+        }
+        header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        .tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            background: none;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        .tab:hover {
+            background: #e8e8e8;
+        }
+        .tab.active {
+            background: white;
+            border-bottom: 3px solid #667eea;
+        }
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #444;
+            font-weight: 500;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="date"],
+        input[type="time"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        select[multiple] {
+            min-height: 150px;
+        }
+        .checkbox-group {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            padding: 10px;
+            background: #fafafa;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            margin-bottom: 5px;
+            background: white;
+            border-radius: 3px;
+            transition: background 0.2s;
+        }
+        .checkbox-item:hover {
+            background: #f0f0f0;
+        }
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .checkbox-item label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: normal;
+            flex: 1;
+        }
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #218838;
+        }
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+        #response {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .list-item {
+            background: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+        .list-item.inactive {
+            opacity: 0.6;
+            border-left-color: #999;
+        }
+        .list-item-content {
+            margin-bottom: 10px;
+        }
+        .list-item h3 {
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .list-item p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+        .list-item-actions {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .badge-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .badge-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .section h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .member-list {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+        }
+        .member-list h4 {
+            margin-bottom: 8px;
+            color: #555;
+            font-size: 14px;
+        }
+        .member-tag {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 3px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-header h2 {
+            margin: 0;
+        }
+        .close-btn {
+            font-size: 28px;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+            border: none;
+            background: none;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+        }
+        .close-btn:hover {
+            color: #333;
+        }
+        .facilitator-section {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .facilitator-section h3 {
+            margin-bottom: 10px;
+            color: #555;
+            font-size: 16px;
+        }
+        .facilitator-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 Standup Bot</h1>
+            <p>Manage standup meetings, team roster, and leaves</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('standups')">Standups</button>
+            <button class="tab" onclick="showTab('roster')">Roster</button>
+            <button class="tab" onclick="showTab('leaves')">Leaves</button>
+            <button class="tab" onclick="showTab('send')">Send Message</button>
+        </div>
+
+        <!-- Standups Tab -->
+        <div id="standups-tab" class="tab-content active">
+            <div class="section">
+                <h2>Create New Standup</h2>
+                <form id="createStandupForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="standupName">Standup Name *</label>
+                            <input type="text" id="standupName" required placeholder="e.g., Daily Team Standup">
+                        </div>
+                        <div class="form-group">
+                            <label for="standupRunAt">Run At (Time) *</label>
+                            <input type="time" id="standupRunAt" required placeholder="HH:MM">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="standupMessage">Message *</label>
+                        <textarea id="standupMessage" required placeholder="Enter the standup message/reminder..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Select Members *</label>
+                        <div id="standupMembers" class="checkbox-group">
+                            <p style="color: #999;">Loading users...</p>
+                        </div>
+                        <small style="color: #666; display: block; margin-top: 5px;">Select one or more team members</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="standupCreatedBy">Created By (optional)</label>
+                        <input type="text" id="standupCreatedBy" placeholder="Your name">
+                    </div>
+                    <button type="submit" class="btn-primary">Create Standup</button>
+                </form>
+                <div id="standupsResponse"></div>
+            </div>
+
+            <div class="section">
+                <h2>Standup Meetings</h2>
+                <button class="btn-secondary" onclick="loadStandups()">All Standups</button>
+                <button class="btn-secondary" onclick="loadStandups(true)">Active Only</button>
+                <div id="standupsList" style="margin-top: 20px;"></div>
+            </div>
+        </div>
+
+        <!-- Roster Tab -->
+        <div id="roster-tab" class="tab-content">
+            <div class="section">
+                <h2>Add New User</h2>
+                <form id="createUserForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="userGoogleId">Google Chat User ID *</label>
+                            <input type="text" id="userGoogleId" required placeholder="e.g., user@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="userDisplayName">Display Name *</label>
+                            <input type="text" id="userDisplayName" required placeholder="e.g., John Doe">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="userEmail">Email (optional)</label>
+                        <input type="email" id="userEmail" placeholder="john.doe@example.com">
+                    </div>
+                    <button type="submit" class="btn-primary">Add User</button>
+                </form>
+                <div id="rosterResponse"></div>
+            </div>
+
+            <div class="section">
+                <h2>Team Roster</h2>
+                <button class="btn-secondary" onclick="loadRoster()">Refresh List</button>
+                <button class="btn-secondary" onclick="loadRoster(true)">Show Active Only</button>
+                <div id="rosterList" style="margin-top: 20px;"></div>
+            </div>
+        </div>
+
+        <!-- Leaves Tab -->
+        <div id="leaves-tab" class="tab-content">
+            <div class="section">
+                <h2>Add New Leave</h2>
+                <form id="createLeaveForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="leaveUserId">User *</label>
+                            <select id="leaveUserId" required>
+                                <option value="">Select user...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="leaveType">Leave Type *</label>
+                            <select id="leaveType" required>
+                                <option value="sick">Sick Leave</option>
+                                <option value="vacation">Vacation</option>
+                                <option value="pto">PTO</option>
+                                <option value="personal">Personal</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="leaveStartDate">Start Date *</label>
+                            <input type="date" id="leaveStartDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="leaveEndDate">End Date *</label>
+                            <input type="date" id="leaveEndDate" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="leaveReason">Reason (optional)</label>
+                        <textarea id="leaveReason" placeholder="Optional reason..." rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary">Add Leave</button>
+                </form>
+                <div id="leavesResponse"></div>
+            </div>
+
+            <div class="section">
+                <h2>Leave Records</h2>
+                <button class="btn-secondary" onclick="loadLeaves()">All Leaves</button>
+                <button class="btn-secondary" onclick="loadLeaves(true)">Active Leaves Only</button>
+                <div id="leavesList" style="margin-top: 20px;"></div>
+            </div>
+        </div>
+
+        <!-- Send Message Tab -->
+        <div id="send-tab" class="tab-content">
+            <div class="section">
+                <h2>Send Message to Google Chat</h2>
+                <form id="messageForm">
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" placeholder="Enter your message..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary">Send Message</button>
+                </form>
+                <div id="response"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Standup Detail Modal -->
+    <div id="standupModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalStandupName"></h2>
+                <button class="close-btn" onclick="closeStandupModal()">&times;</button>
+            </div>
+            <div id="modalStandupContent"></div>
+        </div>
+    </div>
+
+    <script>
+        let allUsers = [];
+
+        // Tab switching
+        function showTab(tabName) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            const tabButtons = document.querySelectorAll('.tab');
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+
+            // Load data when switching tabs
+            if (tabName === 'standups') {
+                loadStandups();
+                loadUsersForStandupForm();
+            }
+            if (tabName === 'roster') loadRoster();
+            if (tabName === 'leaves') {
+                loadRoster(true); // Load users for dropdown
+                loadLeaves();
+            }
+        }
+
+        // Show response message
+        function showResponse(elementId, message, isError = false) {
+            const responseDiv = document.getElementById(elementId);
+            responseDiv.style.display = 'block';
+            responseDiv.className = isError ? 'error' : 'success';
+            responseDiv.textContent = message;
+            setTimeout(() => {
+                responseDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Load users for standup form
+        async function loadUsersForStandupForm() {
+            try {
+                const response = await fetch('/api/roster?active=true');
+                allUsers = await response.json();
+
+                const container = document.getElementById('standupMembers');
+                if (!allUsers || allUsers.length === 0) {
+                    container.innerHTML = '<p style="color: #999;">No active users found</p>';
+                    return;
+                }
+
+                container.innerHTML = allUsers.map(user => `
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="user_${user.id}" name="members" value="${user.id}">
+                        <label for="user_${user.id}">${user.display_name}</label>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        }
+
+        // Standup Management
+        document.getElementById('createStandupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const checkedBoxes = document.querySelectorAll('#standupMembers input[type="checkbox"]:checked');
+            const selectedMembers = Array.from(checkedBoxes).map(cb => parseInt(cb.value));
+
+            if (selectedMembers.length === 0) {
+                showResponse('standupsResponse', 'Please select at least one member', true);
+                return;
+            }
+
+            const data = {
+                name: document.getElementById('standupName').value,
+                message: document.getElementById('standupMessage').value,
+                run_at: document.getElementById('standupRunAt').value,
+                created_by: document.getElementById('standupCreatedBy').value,
+                members: selectedMembers
+            };
+
+            try {
+                const response = await fetch('/api/standups', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                showResponse('standupsResponse', response.ok ? 'Standup created successfully!' : result.error, !response.ok);
+                if (response.ok) {
+                    document.getElementById('createStandupForm').reset();
+                    loadStandups();
+                }
+            } catch (error) {
+                showResponse('standupsResponse', 'Error: ' + error.message, true);
+            }
+        });
+
+        async function loadStandups(activeOnly = false) {
+            try {
+                const url = activeOnly ? '/api/standups?active=true' : '/api/standups';
+                const response = await fetch(url);
+                const standups = await response.json();
+
+                const listDiv = document.getElementById('standupsList');
+                if (!standups || standups.length === 0) {
+                    listDiv.innerHTML = '<p>No standups found.</p>';
+                    return;
+                }
+
+                listDiv.innerHTML = standups.map(standup => {
+                    const facilitatorHtml = standup.current_facilitator
+                        ? `<p><strong>Current Facilitator:</strong> <span style="color: #667eea; font-weight: 600;">${standup.current_facilitator.display_name}</span></p>`
+                        : '<p><strong>Current Facilitator:</strong> <span style="color: #999;">Not set</span></p>';
+
+                    const membersHtml = standup.members && standup.members.length > 0
+                        ? `<p><strong>Members:</strong> ${standup.members.length} assigned</p>`
+                        : '<p style="color: #999;">No members assigned</p>';
+
+                    return `
+                        <div class="list-item ${!standup.is_active ? 'inactive' : ''}">
+                            <div class="list-item-content">
+                                <h3>${standup.name} ${standup.is_active ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-danger">Inactive</span>'}</h3>
+                                <p><strong>Schedule:</strong> Daily at ${standup.run_at}</p>
+                                ${facilitatorHtml}
+                                ${membersHtml}
+                            </div>
+                            <div class="list-item-actions">
+                                <button class="btn-secondary btn-small" onclick="viewStandupDetails(${standup.id})">View Details</button>
+                                ${standup.is_active ? `
+                                    <button class="btn-success btn-small" onclick="sendStandupReminder(${standup.id})">Test Send</button>
+                                    <button class="btn-danger btn-small" onclick="deleteStandup(${standup.id})">Deactivate</button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading standups:', error);
+            }
+        }
+
+        async function deleteStandup(id) {
+            if (!confirm('Are you sure you want to deactivate this standup?')) return;
+
+            try {
+                const response = await fetch(`/api/standups/${id}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+                showResponse('standupsResponse', result.message || result.error, !response.ok);
+                if (response.ok) loadStandups();
+            } catch (error) {
+                showResponse('standupsResponse', 'Error: ' + error.message, true);
+            }
+        }
+
+        async function sendStandupReminder(id) {
+            if (!confirm('Send a test reminder now for this standup?')) return;
+
+            try {
+                const response = await fetch(`/api/standups/${id}/send`, {
+                    method: 'POST'
+                });
+
+                const result = await response.json();
+                showResponse('standupsResponse', result.message || result.error, !response.ok);
+            } catch (error) {
+                showResponse('standupsResponse', 'Error: ' + error.message, true);
+            }
+        }
+
+        // Send Message
+        document.getElementById('messageForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = document.getElementById('message').value;
+
+            try {
+                const response = await fetch('/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message, messageType: 'simple' })
+                });
+
+                const result = await response.json();
+                showResponse('response', result.message || result.error, !response.ok);
+                if (response.ok) document.getElementById('messageForm').reset();
+            } catch (error) {
+                showResponse('response', 'Error: ' + error.message, true);
+            }
+        });
+
+        // Roster Management
+        document.getElementById('createUserForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const data = {
+                google_chat_user_id: document.getElementById('userGoogleId').value,
+                display_name: document.getElementById('userDisplayName').value,
+                email: document.getElementById('userEmail').value
+            };
+
+            try {
+                const response = await fetch('/api/roster', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                showResponse('rosterResponse', response.ok ? 'User added successfully!' : result.error, !response.ok);
+                if (response.ok) {
+                    document.getElementById('createUserForm').reset();
+                    loadRoster();
+                }
+            } catch (error) {
+                showResponse('rosterResponse', 'Error: ' + error.message, true);
+            }
+        });
+
+        async function loadRoster(activeOnly = false) {
+            try {
+                const url = activeOnly ? '/api/roster?active=true' : '/api/roster';
+                const response = await fetch(url);
+                const users = await response.json();
+
+                const listDiv = document.getElementById('rosterList');
+                if (!users || users.length === 0) {
+                    listDiv.innerHTML = '<p>No users found.</p>';
+                    return;
+                }
+
+                listDiv.innerHTML = users.map(user => `
+                    <div class="list-item ${!user.is_active ? 'inactive' : ''}">
+                        <div class="list-item-content">
+                            <h3>${user.display_name} ${!user.is_active ? '<span class="badge badge-danger">Inactive</span>' : '<span class="badge badge-success">Active</span>'}</h3>
+                            <p><strong>ID:</strong> ${user.google_chat_user_id}</p>
+                            ${user.email ? `<p><strong>Email:</strong> ${user.email}</p>` : ''}
+                            <p><strong>Joined:</strong> ${new Date(user.joined_at).toLocaleDateString()}</p>
+                        </div>
+                        <div class="list-item-actions">
+                            ${user.is_active ?
+                                `<button class="btn-danger btn-small" onclick="deactivateUser(${user.id})">Deactivate</button>` :
+                                `<button class="btn-success btn-small" onclick="reactivateUser(${user.id})">Reactivate</button>`
+                            }
+                        </div>
+                    </div>
+                `).join('');
+
+                // Also populate leave user dropdown
+                const userSelect = document.getElementById('leaveUserId');
+                if (activeOnly && userSelect) {
+                    userSelect.innerHTML = '<option value="">Select user...</option>' +
+                        users.filter(u => u.is_active).map(user =>
+                            `<option value="${user.id}">${user.display_name}</option>`
+                        ).join('');
+                }
+            } catch (error) {
+                console.error('Error loading roster:', error);
+            }
+        }
+
+        async function deactivateUser(id) {
+            if (!confirm('Are you sure you want to deactivate this user?')) return;
+
+            try {
+                const response = await fetch(`/api/roster/${id}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+                showResponse('rosterResponse', result.message || result.error, !response.ok);
+                if (response.ok) loadRoster();
+            } catch (error) {
+                showResponse('rosterResponse', 'Error: ' + error.message, true);
+            }
+        }
+
+        async function reactivateUser(id) {
+            try {
+                const response = await fetch(`/api/roster/${id}/reactivate`, {
+                    method: 'POST'
+                });
+
+                const result = await response.json();
+                showResponse('rosterResponse', result.message || result.error, !response.ok);
+                if (response.ok) loadRoster();
+            } catch (error) {
+                showResponse('rosterResponse', 'Error: ' + error.message, true);
+            }
+        }
+
+        // Leaves Management
+        document.getElementById('createLeaveForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const data = {
+                user_id: parseInt(document.getElementById('leaveUserId').value),
+                leave_type: document.getElementById('leaveType').value,
+                start_date: document.getElementById('leaveStartDate').value,
+                end_date: document.getElementById('leaveEndDate').value,
+                reason: document.getElementById('leaveReason').value
+            };
+
+            try {
+                const response = await fetch('/api/leaves', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                showResponse('leavesResponse', response.ok ? 'Leave added successfully!' : result.error, !response.ok);
+                if (response.ok) {
+                    document.getElementById('createLeaveForm').reset();
+                    loadLeaves();
+                }
+            } catch (error) {
+                showResponse('leavesResponse', 'Error: ' + error.message, true);
+            }
+        });
+
+        async function loadLeaves(activeOnly = false) {
+            try {
+                const url = activeOnly ? '/api/leaves?active=true' : '/api/leaves';
+                const response = await fetch(url);
+                const leaves = await response.json();
+
+                const listDiv = document.getElementById('leavesList');
+                if (!leaves || leaves.length === 0) {
+                    listDiv.innerHTML = '<p>No leave records found.</p>';
+                    return;
+                }
+
+                listDiv.innerHTML = leaves.map(leave => {
+                    const statusBadge = leave.status === 'active' ? 'badge-warning' :
+                                       leave.status === 'completed' ? 'badge-info' : 'badge-danger';
+                    return `
+                        <div class="list-item">
+                            <div class="list-item-content">
+                                <h3>User ID: ${leave.user_id} <span class="badge ${statusBadge}">${leave.status.toUpperCase()}</span></h3>
+                                <p><strong>Type:</strong> ${leave.leave_type.toUpperCase()}</p>
+                                <p><strong>Period:</strong> ${new Date(leave.start_date).toLocaleDateString()} - ${new Date(leave.end_date).toLocaleDateString()}</p>
+                                ${leave.reason ? `<p><strong>Reason:</strong> ${leave.reason}</p>` : ''}
+                            </div>
+                            <div class="list-item-actions">
+                                ${leave.status === 'active' ?
+                                    `<button class="btn-danger btn-small" onclick="cancelLeave(${leave.id})">Cancel</button>` :
+                                    ''
+                                }
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading leaves:', error);
+            }
+        }
+
+        async function cancelLeave(id) {
+            if (!confirm('Are you sure you want to cancel this leave?')) return;
+
+            try {
+                const response = await fetch(`/api/leaves/${id}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+                showResponse('leavesResponse', result.message || result.error, !response.ok);
+                if (response.ok) loadLeaves();
+            } catch (error) {
+                showResponse('leavesResponse', 'Error: ' + error.message, true);
+            }
+        }
+
+        // Standup Detail Modal Functions
+        async function viewStandupDetails(id) {
+            try {
+                const response = await fetch(`/api/standups/${id}`);
+                const standup = await response.json();
+
+                document.getElementById('modalStandupName').textContent = standup.name;
+
+                const facilitatorHtml = standup.current_facilitator
+                    ? `<div class="facilitator-section">
+                        <h3>Current Facilitator</h3>
+                        <div class="facilitator-name">${standup.current_facilitator.display_name}</div>
+                        <button class="btn-secondary btn-small" onclick="rotateFacilitator(${standup.id})">Rotate to Next</button>
+                       </div>`
+                    : `<div class="facilitator-section">
+                        <h3>Current Facilitator</h3>
+                        <p style="color: #999;">No facilitator set</p>
+                        <button class="btn-primary btn-small" onclick="rotateFacilitator(${standup.id})">Assign First Member</button>
+                       </div>`;
+
+                const membersHtml = standup.members && standup.members.length > 0
+                    ? `<div style="margin-top: 20px;">
+                        <h4 style="margin-bottom: 10px;">All Members (${standup.members.length}):</h4>
+                        ${standup.members.map((m, idx) => `
+                            <div style="display: flex; align-items: center; padding: 8px; background: #f9f9f9; margin-bottom: 5px; border-radius: 5px;">
+                                <span style="flex: 1; font-weight: 500;">${m.display_name}</span>
+                                <div style="display: flex; gap: 5px;">
+                                    ${idx > 0 ? `<button class="btn-secondary btn-small" onclick="moveMemberUp(${standup.id}, ${m.id})" title="Move up">▲</button>` : '<button class="btn-secondary btn-small" disabled style="opacity: 0.3;">▲</button>'}
+                                    ${idx < standup.members.length - 1 ? `<button class="btn-secondary btn-small" onclick="moveMemberDown(${standup.id}, ${m.id})" title="Move down">▼</button>` : '<button class="btn-secondary btn-small" disabled style="opacity: 0.3;">▼</button>'}
+                                    <button class="btn-danger btn-small" onclick="removeMember(${standup.id}, ${m.id}, '${m.display_name}')" title="Remove from standup">✕</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                       </div>`
+                    : '<p style="color: #999;">No members assigned</p>';
+
+                const content = `
+                    <p><strong>Schedule:</strong> Daily at ${standup.run_at}</p>
+                    <p><strong>Status:</strong> ${standup.is_active ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-danger">Inactive</span>'}</p>
+
+                    ${facilitatorHtml}
+
+                    <div style="margin: 20px 0;">
+                        <h3 style="margin-bottom: 10px;">Message</h3>
+                        <div style="background: #f9f9f9; padding: 15px; border-radius: 5px; white-space: pre-wrap;">${standup.message}</div>
+                    </div>
+
+                    ${membersHtml}
+
+                    ${standup.created_by ? `<p style="margin-top: 15px; color: #999;"><strong>Created by:</strong> ${standup.created_by}</p>` : ''}
+                    <p style="color: #999;"><strong>Created:</strong> ${new Date(standup.created_at).toLocaleString()}</p>
+                `;
+
+                document.getElementById('modalStandupContent').innerHTML = content;
+                document.getElementById('standupModal').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading standup details:', error);
+                showResponse('standupsResponse', 'Error loading details: ' + error.message, true);
+            }
+        }
+
+        function closeStandupModal() {
+            document.getElementById('standupModal').style.display = 'none';
+        }
+
+        async function rotateFacilitator(standupID) {
+            if (!confirm('Rotate to the next facilitator?')) return;
+
+            try {
+                const response = await fetch(`/api/standups/${standupID}/facilitator/rotate`, {
+                    method: 'POST'
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showResponse('standupsResponse', 'Facilitator rotated successfully!', false);
+                    // Reload standup list and detail view
+                    loadStandups();
+                    viewStandupDetails(standupID);
+                } else {
+                    showResponse('standupsResponse', result.error, true);
+                }
+            } catch (error) {
+                showResponse('standupsResponse', 'Error: ' + error.message, true);
+            }
+        }
+
+        async function moveMemberUp(standupID, userID) {
+            try {
+                const response = await fetch(`/api/standups/${standupID}/members/${userID}/up`, {
+                    method: 'POST'
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Reload detail view to show new order
+                    viewStandupDetails(standupID);
+                    loadStandups(); // Also refresh list
+                } else {
+                    showResponse('standupsResponse', result.error, true);
+                }
+            } catch (error) {
+                showResponse('standupsResponse', 'Error: ' + error.message, true);
+            }
+        }
+
+        async function moveMemberDown(standupID, userID) {
+            try {
+                const response = await fetch(`/api/standups/${standupID}/members/${userID}/down`, {
+                    method: 'POST'
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Reload detail view to show new order
+                    viewStandupDetails(standupID);
+                    loadStandups(); // Also refresh list
+                } else {
+                    showResponse('standupsResponse', result.error, true);
+                }
+            } catch (error) {
+                showResponse('standupsResponse', 'Error: ' + error.message, true);
+            }
+        }
+
+        async function removeMember(standupID, userID, userName) {
+            if (!confirm(`Remove ${userName} from this standup?`)) return;
+
+            try {
+                const response = await fetch(`/api/standups/${standupID}/members/${userID}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showResponse('standupsResponse', `${userName} removed successfully!`, false);
+                    // Reload detail view to show updated members
+                    viewStandupDetails(standupID);
+                    loadStandups(); // Also refresh list
+                } else {
+                    showResponse('standupsResponse', result.error, true);
+                }
+            } catch (error) {
+                showResponse('standupsResponse', 'Error: ' + error.message, true);
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('standupModal');
+            if (event.target == modal) {
+                closeStandupModal();
+            }
+        }
+
+        // Initial load
+        loadStandups();
+        loadUsersForStandupForm();
+    </script>
+</body>
+</html>

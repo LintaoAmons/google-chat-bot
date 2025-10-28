@@ -21,3 +21,4 @@ google-chat-bot
 *.swp
 *.swo
 *~
+standup_bot.db
