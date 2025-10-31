@@ -17,16 +17,18 @@ type CreateStandupRequest struct {
 	Name      string `json:"name"`
 	Message   string `json:"message"`
 	RunAt     string `json:"run_at"` // HH:MM format
+	Timezone  string `json:"timezone"` // IANA timezone (e.g., "America/New_York", "Asia/Tokyo")
 	CreatedBy string `json:"created_by"`
 	Members   []int  `json:"members"` // User IDs
 }
 
 // UpdateStandupRequest represents the request to update a standup
 type UpdateStandupRequest struct {
-	Name    string `json:"name"`
-	Message string `json:"message"`
-	RunAt   string `json:"run_at"` // HH:MM format
-	Members []int  `json:"members"` // User IDs (optional, for updating members)
+	Name     string `json:"name"`
+	Message  string `json:"message"`
+	RunAt    string `json:"run_at"` // HH:MM format
+	Timezone string `json:"timezone"` // IANA timezone
+	Members  []int  `json:"members"` // User IDs (optional, for updating members)
 }
 
 // GetStandupsHandler retrieves all standups or active standups only
@@ -114,7 +116,7 @@ func CreateStandupHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 
-	standup, err := services.CreateStandup(req.Name, req.Message, req.RunAt, req.CreatedBy)
+	standup, err := services.CreateStandup(req.Name, req.Message, req.RunAt, req.Timezone, req.CreatedBy)
 	if err != nil {
 		log.Printf("Failed to create standup: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -167,7 +169,7 @@ func UpdateStandupHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 
-	err = services.UpdateStandup(id, req.Name, req.Message, req.RunAt)
+	err = services.UpdateStandup(id, req.Name, req.Message, req.RunAt, req.Timezone)
 	if err != nil {
 		log.Printf("Failed to update standup: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)

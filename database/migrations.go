@@ -67,6 +67,7 @@ CREATE TABLE IF NOT EXISTS standups (
     name TEXT NOT NULL,
     message TEXT NOT NULL,
     run_at TEXT NOT NULL,
+    timezone TEXT DEFAULT 'UTC',
     is_active BOOLEAN DEFAULT 1,
     last_facilitator_id INTEGER,
     created_by TEXT,

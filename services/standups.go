@@ -9,13 +9,18 @@ import (
 )
 
 // CreateStandup creates a new standup meeting
-func CreateStandup(name, message, runAt, createdBy string) (*database.Standup, error) {
+func CreateStandup(name, message, runAt, timezone, createdBy string) (*database.Standup, error) {
+	// Default to UTC if timezone not provided
+	if timezone == "" {
+		timezone = "UTC"
+	}
+
 	query := `
-		INSERT INTO standups (name, message, run_at, created_by, is_active)
-		VALUES (?, ?, ?, ?, 1)
+		INSERT INTO standups (name, message, run_at, timezone, created_by, is_active)
+		VALUES (?, ?, ?, ?, ?, 1)
 	`
 
-	result, err := database.DB.Exec(query, name, message, runAt, createdBy)
+	result, err := database.DB.Exec(query, name, message, runAt, timezone, createdBy)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create standup: %w", err)
 	}
@@ -31,7 +36,7 @@ func CreateStandup(name, message, runAt, createdBy string) (*database.Standup, e
 // GetStandupByID retrieves a standup by ID
 func GetStandupByID(id int) (*database.Standup, error) {
 	query := `
-		SELECT id, name, message, run_at, is_active, last_facilitator_id, created_by, created_at, updated_at
+		SELECT id, name, message, run_at, timezone, is_active, last_facilitator_id, created_by, created_at, updated_at
 		FROM standups
 		WHERE id = ?
 	`
@@ -43,6 +48,7 @@ func GetStandupByID(id int) (*database.Standup, error) {
 		&standup.Name,
 		&standup.Message,
 		&standup.RunAt,
+		&standup.Timezone,
 		&standup.IsActive,
 		&facilitatorID,
 		&standup.CreatedBy,
@@ -136,7 +142,7 @@ func getUserByID(id int) (*database.User, error) {
 // GetAllStandups retrieves all standups
 func GetAllStandups() ([]database.Standup, error) {
 	query := `
-		SELECT id, name, message, run_at, is_active, last_facilitator_id, created_by, created_at, updated_at
+		SELECT id, name, message, run_at, timezone, is_active, last_facilitator_id, created_by, created_at, updated_at
 		FROM standups
 		ORDER BY run_at, name
 	`
@@ -156,6 +162,7 @@ func GetAllStandups() ([]database.Standup, error) {
 			&standup.Name,
 			&standup.Message,
 			&standup.RunAt,
+			&standup.Timezone,
 			&standup.IsActive,
 			&facilitatorID,
 			&standup.CreatedBy,
@@ -178,7 +185,7 @@ func GetAllStandups() ([]database.Standup, error) {
 // GetActiveStandups retrieves all active standups
 func GetActiveStandups() ([]database.Standup, error) {
 	query := `
-		SELECT id, name, message, run_at, is_active, last_facilitator_id, created_by, created_at, updated_at
+		SELECT id, name, message, run_at, timezone, is_active, last_facilitator_id, created_by, created_at, updated_at
 		FROM standups
 		WHERE is_active = 1
 		ORDER BY run_at, name
@@ -199,6 +206,7 @@ func GetActiveStandups() ([]database.Standup, error) {
 			&standup.Name,
 			&standup.Message,
 			&standup.RunAt,
+			&standup.Timezone,
 			&standup.IsActive,
 			&facilitatorID,
 			&standup.CreatedBy,
@@ -219,20 +227,25 @@ func GetActiveStandups() ([]database.Standup, error) {
 }
 
 // UpdateStandup updates a standup
-func UpdateStandup(id int, name, message, runAt string) error {
+func UpdateStandup(id int, name, message, runAt, timezone string) error {
 	// Get current standup to log changes
 	oldStandup, err := GetStandupByID(id)
 	if err != nil {
 		return fmt.Errorf("failed to get standup: %w", err)
 	}
 
+	// Default to UTC if timezone not provided
+	if timezone == "" {
+		timezone = "UTC"
+	}
+
 	query := `
 		UPDATE standups
-		SET name = ?, message = ?, run_at = ?, updated_at = CURRENT_TIMESTAMP
+		SET name = ?, message = ?, run_at = ?, timezone = ?, updated_at = CURRENT_TIMESTAMP
 		WHERE id = ?
 	`
 
-	result, err := database.DB.Exec(query, name, message, runAt, id)
+	result, err := database.DB.Exec(query, name, message, runAt, timezone, id)
 	if err != nil {
 		return fmt.Errorf("failed to update standup: %w", err)
 	}
@@ -242,9 +255,10 @@ func UpdateStandup(id int, name, message, runAt string) error {
 		return fmt.Errorf("standup not found")
 	}
 
-	// Log if schedule time changed
-	if oldStandup.RunAt != runAt {
-		log.Printf("📅 [SCHEDULE UPDATE] Standup '%s' (ID: %d) schedule changed from %s to %s", name, id, oldStandup.RunAt, runAt)
+	// Log if schedule time or timezone changed
+	if oldStandup.RunAt != runAt || oldStandup.Timezone != timezone {
+		log.Printf("📅 [SCHEDULE UPDATE] Standup '%s' (ID: %d) schedule changed from %s %s to %s %s",
+			name, id, oldStandup.RunAt, oldStandup.Timezone, runAt, timezone)
 	}
 
 	return nil

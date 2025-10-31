@@ -36,6 +36,7 @@ type Standup struct {
 	Name               string    `json:"name"`
 	Message            string    `json:"message"`
 	RunAt              string    `json:"run_at"` // Time in HH:MM format (e.g., "09:00")
+	Timezone           string    `json:"timezone"` // IANA timezone (e.g., "America/New_York", "Asia/Tokyo")
 	IsActive           bool      `json:"is_active"`
 	LastFacilitatorID  *int      `json:"last_facilitator_id,omitempty"`
 	CreatedBy          string    `json:"created_by"`

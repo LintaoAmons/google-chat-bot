@@ -71,8 +71,15 @@ func ScheduleStandup(standup database.Standup) error {
 	hour := parsedTime.Hour()
 	minute := parsedTime.Minute()
 
-	// Build cron expression: "minute hour * * *"
-	cronSpec := fmt.Sprintf("%d %d * * *", minute, hour)
+	// Default to UTC if no timezone specified
+	timezone := standup.Timezone
+	if timezone == "" {
+		timezone = "UTC"
+	}
+
+	// Build cron expression with timezone: "CRON_TZ=timezone minute hour * * *"
+	// The robfig/cron library supports CRON_TZ prefix for timezone-aware scheduling
+	cronSpec := fmt.Sprintf("CRON_TZ=%s %d %d * * *", timezone, minute, hour)
 
 	// Add the job
 	_, err = cronScheduler.AddFunc(cronSpec, func() {
@@ -83,7 +90,7 @@ func ScheduleStandup(standup database.Standup) error {
 		return fmt.Errorf("failed to add cron job: %w", err)
 	}
 
-	log.Printf("Scheduled standup '%s' (ID: %d) at %s", standup.Name, standup.ID, standup.RunAt)
+	log.Printf("📅 Scheduled standup '%s' (ID: %d) at %s %s", standup.Name, standup.ID, standup.RunAt, timezone)
 	return nil
 }
 
